@@ -47,7 +47,7 @@ def affiche(grille):
 
 
 
-# Convention: (0,0) en haut a gauche , sens vers la droite en bas
+# Convention: (0,0) en haut a gauche , sens vers la droite en bas (premier chiffre vertical, 2e horizontal)
 # direction = 1 si position horizontale , 2 si verticale
 
 def peut_placer(grille,bateau,position,direction):
@@ -73,21 +73,19 @@ def peut_placer(grille,bateau,position,direction):
     """
     c1=position[0]
     c2=position[1]
-    if (not 0<=c1<=10) and (not 0<=c2<=10) :
+    if (not 0<=c1<10) or (not 0<=c2<10) :
         return False #origine du bateau pas dans la grille
     if direction==1:
-        if not c2+bateau.taille<=10:
+        if not c2+bateau.taille<10:
             return False #fin du bateau pas dans la grille
         for i in range(c2,c2+bateau.taille):
-            if not 0<=grille[c1][i]<=10 or grille[c1][i]!=0:
-                return False #totalite du bateau pas dans la grille
             if grille[c1][i]!=0:
                 return False #case deja occupee, le bateau ne peut etre place
     else: #idem que precedent mais pour vertical
-        if not c1+bateau.taille<=10:
+        if not c1+bateau.taille<10:
             return False 
         for i in range(c1,c1+bateau.taille):
-            if not 0<=grille[i][c2]<=10 or grille[i][c2]!=0:
+            if grille[i][c2]!=0:
                 return False
     return True
 
@@ -113,16 +111,21 @@ def place_ale(grille,bateau):
     d=r.randint(1,2)
     #on donne des valeurs aleatoires aux coordonnes de position d'un bateau et à sa direction
     while not peut_placer(grille,bateau,(c1,c2),d):
-        c1=r.randint(0,lim)
-        c2=r.randint(0,lim)
+        c1=r.randint(0,10-lim)
+        c2=r.randint(0,10-lim)
         d=r.randint(1,2)
     place(grille,bateau,(c1,c2),d)
 
 def eq(grilleA,grilleB):
-    if grilleA.shape!=grilleB.shape and grilleA.any()==grilleB().any(): 
-        #On teste l'egalite des tailles des grilles, puis l'egalite de chaque element de la grille
-        return True
-    return False
+    if grilleA.shape!=grilleB.shape:
+        #On teste l'egalite des tailles des grilles
+        return False
+    #Si tailles egales, on compare les elements deux a deux
+    for i in range(0, grilleA.shape[0]-1):
+        for j in range(0, grilleA.shape[1]-1):
+            if grilleA[i][j] != grilleB[i][j]:
+                return False
+    return True
 
 def genere_grille():
     grille=np.zeros((10,10))
