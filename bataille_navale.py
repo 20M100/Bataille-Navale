@@ -9,6 +9,8 @@ Bataille navale
 """
 PARTIE 1
 """
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 import random as r 
@@ -76,13 +78,13 @@ def peut_placer(grille,bateau,position,direction):
     if (not 0<=c1<10) or (not 0<=c2<10) :
         return False #origine du bateau pas dans la grille
     if direction==1:
-        if not c2+bateau.taille<10:
+        if not c2+bateau.taille<=10:
             return False #fin du bateau pas dans la grille
         for i in range(c2,c2+bateau.taille):
             if grille[c1][i]!=0:
                 return False #case deja occupee, le bateau ne peut etre place
     else: #idem que precedent mais pour vertical
-        if not c1+bateau.taille<10:
+        if not c1+bateau.taille<=10:
             return False 
         for i in range(c1,c1+bateau.taille):
             if grille[i][c2]!=0:
@@ -105,14 +107,13 @@ def place(grille,bateau,position,direction):
     #On a place le bateau, en donnant a chacune des cases qui le compose son numero id
             
 def place_ale(grille,bateau):
-    lim=10-bateau.taille #le bateau ne pourra pas etre place si il commence apres cette limite
-    c1=r.randint(0,10-lim)
-    c2=r.randint(0,10-lim)
+    c1=r.randint(0,10)
+    c2=r.randint(0,10)
     d=r.randint(1,2)
     #on donne des valeurs aleatoires aux coordonnes de position d'un bateau et à sa direction
     while not peut_placer(grille,bateau,(c1,c2),d):
-        c1=r.randint(0,10-lim)
-        c2=r.randint(0,10-lim)
+        c1=r.randint(0,10)
+        c2=r.randint(0,10)
         d=r.randint(1,2)
     place(grille,bateau,(c1,c2),d)
 
@@ -132,7 +133,112 @@ def genere_grille():
     for i in range(1,6):
         bato=Bateau(i)
         place_ale(grille,bato)
-    return grille        
+    return grille       
+
+
+"""
+PARTIE 2
+"""
+
+
+""" QUESTION 2 """
+
+#Version à peine utile pour une grille vide et un seul bateau
+""" def nbconfigs_bateau2(bateau): #On suppose que la grille est de taille 10
+    return 20*(10-bateau.taille+1) 
+    #Pour une ligne/colonne donnée, il y a 10-bateau.taille+1 configs.
+    #Il y a 20 lignes et colonnes, donc on multiplie par 20
+"""
+
+def nbconfigs_bateau(bateau): #On suppose que la grille est de taille 10
+    lgrille = []
+    grille = np.zeros((10,10))
+    for i in range (0,10):      #On stocke toutes les grilles possibles dans une liste
+        for j in range (0,10):
+            if peut_placer(grille, bateau, (i,j), 1):
+                place(grille, bateau, (i,j), 1)
+                lgrille.append(grille)
+                grille = np.zeros((10,10))
+            if peut_placer(grille, bateau, (i,j), 2):
+                place(grille, bateau, (i,j), 2)
+                lgrille.append(grille)
+                grille = np.zeros((10,10))
+    return len(lgrille)
+
+""" QUESTION 3 """
+
+
+#Fonction ajoutée pas explicitement demandée ni interdite dans l'énoncé
+def liste_configs_bateau(grille, bateau): #Renvoie la liste des configs du bateau sur la grille
+    lgrille = []
+    G = grille.copy()
+    for i in range (0,10):
+        for j in range (0,10):
+            if peut_placer(grille, bateau, (i,j), 1):
+                place(grille, bateau, (i,j), 1)
+                lgrille.append(grille)
+                grille = G.copy()
+            if peut_placer(grille, bateau, (i,j), 2):
+                place(grille, bateau, (i,j), 2)
+                lgrille.append(grille)
+                grille = G.copy()
+    return lgrille
+
+def nbconfigs_liste(liste):
+    if len(liste) == 0 :
+        return 1
+    if len(liste) == 1 :
+        return nbconfigs_bateau(liste[0]) #version 2 plus rapide mais peu utile
+    liste_configs = liste_configs_bateau(np.zeros((10,10)), liste[0])
+    for k in range (1, len(liste)):
+        liste_cour = liste_configs.copy()
+        liste_configs.clear()
+        for i in range(0, len(liste_cour)):
+            liste_configs += liste_configs_bateau(liste_cour[i], liste[k])
+    return len(liste_configs)
+
+
+""" QUESTION 4 """
+
+def nb_genere(grille):
+    res = 1
+    rand = genere_grille()
+    while not (eq(grille, rand)):
+        res += 1
+        rand = genere_grille()
+    return res
+
+""" Pour effectuer des tests
+G = genere_grille()
+s=0
+affiche(G)
+for i in range (1, 101):
+    s += nb_genere(G)
+print(s/100)
+"""
+
+""" QUESTION 5 """
+
+def genere_grille_liste(liste): #Genere une grille aleatoire contenant les bateaux d'une liste donnee
+    grille=np.zeros((10,10))
+    for i in range(0,len(liste)):
+        place_ale(grille,liste[i])
+    return grille  
+
+def approximer(liste):
+    grille = genere_grille_liste(liste)
+    res = 0
+    for i in range (1,101):
+        rand = genere_grille_liste(liste)
+        s = 1        
+        while not (eq(grille, rand)):
+            rand = genere_grille_liste(liste)
+            s += 1            
+        res += s
+    return res/100
+
+
+""" PARTIE 3 """
 
 
 # porteAv=Bateau(1)
@@ -204,11 +310,11 @@ class JoueurHeuri:
 
 
     def genere_coup_heuri(self):
-            iDirec=?
+            iDirec=1
             direc=pos_heuri[iDirec]
             if 0<=posRacine[0]+direc[0]<=9 and posRacine[1]+direc[1]<=9:
                 self.coup=(posRacine[0]+direc[0],posRacine[1]+direc[1])
-            if coup pas bon:
+            """if coup pas bon:"""
             """
             On determine une direction (tester ttes direcs apres echecs precedents)
             On fait une racine qui correspond au premier succes, on la laisse tant que les 4 directions ont pas ete exploitees
@@ -246,4 +352,5 @@ def histoJouerAleat():
     
 
     
-histoJouerAleat()
+#histoJouerAleat()
+
