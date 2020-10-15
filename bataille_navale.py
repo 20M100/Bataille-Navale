@@ -290,7 +290,7 @@ class JoueurHeuri:
         self.coup=(r.randint(0,9),r.randint(0,9))
         self.coups=[]
         self.posRacine=(0,0) #a partir de la, on commence a exploiter le reste
-        self.dir=0 #si 1, hor droite, -1 hor gauche, 2 vert bas , -2 vert hau
+        self.dir=0 #si 1, hor droite, -1 hor gauche, 2 vert bas , -2 vert haut
         self.pos_heuri=[(0,1),(1,0),(0,-1),(-1,0)]
         for i in range(10):
             for j in range(10):
@@ -310,9 +310,9 @@ class JoueurHeuri:
 
 
     def genere_coup_heuri(self):
-            iDirec=1
+            iDirec=0
             direc=pos_heuri[iDirec]
-            if 0<=posRacine[0]+direc[0]<=9 and posRacine[1]+direc[1]<=9:
+            if 0<=posRacine[0]+direc[0]<=9 and 0<=posRacine[1]+direc[1]<=9:
                 self.coup=(posRacine[0]+direc[0],posRacine[1]+direc[1])
             """if coup pas bon:"""
             """
@@ -338,19 +338,23 @@ def jouerAleat():
         i+=1
     return i
 
-
     
 def histoJouerAleat():
     coups=[]
-    for _ in range(100):
+    for _ in range(10000):
         nb=jouerAleat()
         coups.append(nb)
     
     fig,ax = plt.subplots(1,1)
     ax.hist(coups, bins=101)
     ax.set_xticks([0,25,50,75,100])
-    
+  
 
-    
+"""s=0
+for i in range (1, 10001):
+    s += jouerAleat()
+print(s/10000) 
+"""
+histoJouerAleat()  
 #histoJouerAleat()
 
