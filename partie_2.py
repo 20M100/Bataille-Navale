@@ -62,13 +62,13 @@ def nbConfigs(liste):
 
 """ QUESTION 4 """
 
-def nb_genere(grille):
-    res = 1
-    rand = genere_grille()
-    while not (eq(grille, rand)):
-        res += 1
-        rand = genere_grille()
-    return res
+def nb_generations(grille):
+    grille_aleat = genere_grille()
+    cpt = 1
+    while not (eq(grille, grille_aleat)): #La fonction 'eq' teste l'égalité entre deux grilles
+        cpt += 1
+        grille_aleat = genere_grille()
+    return cpt
 
 
 """ QUESTION 5 """
@@ -79,10 +79,10 @@ def genere_grille_liste(liste): #Genere une grille aleatoire contenant les batea
         place_ale(grille,liste[i])
     return grille  
 
-def approximer(liste):
+def approximer(liste,n=100):
     grille = genere_grille_liste(liste)
     res = 0
-    for i in range (1,101):
+    for _ in range(n):
         rand = genere_grille_liste(liste)
         s = 1        
         while not (eq(grille, rand)):
@@ -90,3 +90,6 @@ def approximer(liste):
             s += 1            
         res += s
     return res/100
+
+
+
