@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 import random as r 
 import matplotlib.pyplot as plt
@@ -138,7 +139,7 @@ class JoueurProba:
         for i in range(10):
             for j in range(10):
                 self.coups.append((i,j))
-        self.joues=[(3,5)]
+        self.joues=[]
         self.bateauxGrille=[1,2,3,4,5] #Contient les identifiants des bateaux initialement sur la grille
                 
     def place_2(self,grille,bateau,position,direction):
@@ -183,41 +184,86 @@ class JoueurProba:
         grille2/=placements*bateau.taille
         return grille2*100 #Retourne proba en pourcentages
     
-    def grilleProba(self):
+    def grilleProba(self): #grille des probas qu'un bateau soit sur telle case qd elle est appelee
         placements=np.zeros((10,10))
+        if len(self.joues)>0:
+            print(self.joues[-1])
+        else:
+            print("[]")
         for el in self.joues:
             x,y=el[0],el[1]
             placements[x][y]=1
-        #placements[i][j] = 0 si la case (i,j) est jouable (=vide), 1 sinon
-        grille=np.array((10,10))
+
         print(placements)
+        #placements[i][j] = 0 si la case (i,j) est jouable (=vide), 1 sinon
+        grille=np.zeros((10,10))
         for idBat in self.bateauxGrille:
             bat=Bateau(idBat)
-            grille+=self.probaPlacements(bat,placements)
+            grille=grille+self.probaPlacements(bat,placements)
+        for el in grille:
+            for y in el:
+                print(round(y,1),end="  ")
+            print()
+        for _ in range(5):
+            print()
         return grille/len(self.bateauxGrille)
             
+    def probaMax(self,grille): #grille a 2 dimensions
+        maxi=grille[0][0]
+        idMaxi=(0,0)
+        for i in range(len(grille)):
+
+            for j in range(len(grille[i])):
+                if grille[i][j]>maxi:        
+                    maxi=grille[i][j]
+                    idMaxi=(i,j)
+
+        return idMaxi
         
         
+    def jouer(self,jeu):
+        cpt=0
+        while not jeu.victoire():
+            probas=self.grilleProba()
+            idMaxi=self.probaMax(probas)
+#            if cpt==4:
+#                print("CPT ",cpt)
+#                probas[1][2]=8.8
+#                for x in probas:
+#                    for y in x:
+#                        print(round(y,1),end="  ")
+#                    print()
+#                print(idMaxi)
+#
+#            if cpt==5:
+#                print("CPT ",cpt)
+#                probas[1][2]=8.8
+#                for x in probas:
+#                    for y in x:
+#                        print(round(y,1),end="  ")
+#                    print()
+#                print(idMaxi)
+            self.coup=idMaxi
+            self.coups.remove(self.coup)
+            self.joues.append(self.coup)
+            jeu.joue(self.coup)
+
+            if jeu.coule!=0:
+                self.bateauxGrille.remove(jeu.coule)
+            cpt+=1
+            
+        return cpt
+        
+            
 
                 
                     
                     
-# bat=Bateau(1)
-# joueur=JoueurProba()
-# grille=np.zeros((10,10))
-# grille[0][0]=1
-# tst=joueur.grilleProba()
-# print(tst)
-# s=0
-# for x in tst:
-#     for el in x:
+jeu=Bataille()
+joueur=JoueurProba()
+t=joueur.jouer(jeu)
+print(t)
 
-#         t=round(el,3)
-#         print(t,end=" ")
-#         s+=t
-#     print()        
-                
-                
-# print(s)
+
  
         
